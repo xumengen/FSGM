@@ -82,7 +82,9 @@ def main(_run, _config, _log):
     # criterion = nn.CrossEntropyLoss(ignore_index=_config['ignore_label'])
     # loss_func = losses.ContrastiveLoss(distance = CosineSimilarity())
     # loss_func = losses.CircleLoss(distance = CosineSimilarity())
-    loss_func = losses.MultiSimilarityLoss()
+    # loss_func = losses.MultiSimilarityLoss()
+    loss_func = losses.ProxyAnchorLoss(num_classes=2, embedding_size=512)
+
 
     i_iter = 0
     log_loss = {'loss': 0, 'align_loss': 0}

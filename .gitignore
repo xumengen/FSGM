@@ -4,4 +4,3 @@ __pycache__/
 *.pth
 *.ipynb
 *DS_Store
-*.sh

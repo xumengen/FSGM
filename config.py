@@ -33,10 +33,10 @@ def cfg():
 
     if mode == 'train':
         dataset = 'VOC'  # 'VOC' or 'COCO'
-        n_steps = 100000
+        n_steps = 50000
         label_sets = 0
         batch_size = 1
-        lr_milestones = [30000, 60000, 90000]
+        lr_milestones = [20000, 30000, 40000]
         align_loss_scaler = 1
         ignore_label = 255
         print_interval = 100
@@ -98,7 +98,7 @@ def cfg():
     exp_str = '_'.join(
         [dataset,]
         + [key for key, value in model.items() if value]
-        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'Metric_MultiSimilarityLoss'])
+        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'Metric_ProxyAnchorLoss'])
 
 
     path = {

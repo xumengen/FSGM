@@ -115,8 +115,8 @@ def main(_run, _config, _log):
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
         fore_index = torch.where(query_labels==1)
         back_index = torch.where(query_labels==0)
-        qry_fore_fts = qry_fts[:, :, fore_index[0], fore_index[1]]  # 1 * C * N1'
-        qry_back_fts = qry_fts[:, :, back_index[0], back_index[1]]  # 1 * C * N2'
+        qry_fore_fts = qry_fts[:, :, fore_index[-2], fore_index[-1]]  # 1 * C * N1'
+        qry_back_fts = qry_fts[:, :, back_index[-2], back_index[-1]]  # 1 * C * N2'
         qry_fg_fts = qry_fore_fts[0].transpose(0, 1)  # N1' * C
         qry_bg_fts = qry_back_fts[0].transpose(0, 1)  # N2' * C
 
@@ -135,17 +135,17 @@ def main(_run, _config, _log):
         qry_fg_fts = qry_fg_fts[indices]
         qry_fg_label = torch.full((k, ), 1)
 
-        k = 500 if N2 >= 500 else N2
+        k = 1000 if N2 >= 1000 else N2
         indices = torch.tensor(random.sample(range(N2), k))
         supp_bg_fts = supp_bg_fts[indices]
         supp_bg_label = torch.full((k, ), 0)
-        k = 500 if N2_q >= 500 else N2_q
+        k = 1000 if N2_q >= 1000 else N2_q
         indices = torch.tensor(random.sample(range(N2_q), k))
         qry_bg_fts = qry_bg_fts[indices]
         qry_bg_label = torch.full((k, ), 0)
 
-        fts = torch.cat((supp_fg_fts, supp_bg_fts), dim=0)  # 6000 * C
-        label = torch.cat((supp_fg_label, supp_bg_label))  # 6000 
+        fts = torch.cat((supp_fg_fts, supp_bg_fts, qry_fg_fts, qry_bg_fts), dim=0)  # 6000 * C
+        label = torch.cat((supp_fg_label, supp_bg_label, qry_fg_label, qry_bg_label))  # 6000 
         # fts = torch.cat((qry_fg_fts, qry_bg_fts), dim=0)
         # label = torch.cat((qry_fg_label, qry_bg_label))
 

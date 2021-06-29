@@ -109,11 +109,20 @@ def main(_run, _config, _log):
         supp_fg_fts = supp_fg_fts[0][0].squeeze().transpose(0, 1)  # N1 * C
         supp_bg_fts = supp_bg_fts[0][0].squeeze().transpose(0, 1)  # N2 * C
 
+        # extract foreground and background query features
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
-        qry_fts = 
+        fore_index = torch.where(qry_fts==1)
+        back_index = torch.where(qry_fts==0)
+        qry_fore_fts = qry_fts[:, :, fore_index[0], fore_index[1]]  # 1 * C * N1'
+        qry_back_fts = qry_fts[:, :, back_index[0], back_index[1]]  # 1 * C * N2'
+        qry_fg_fts = qry_fore_fts[0].transpose(0, 1)  # N1' * C
+        qry_bg_fts = qry_back_fts[0].transpose(0, 1)  # N2' * C
 
+        # sample the features
         N1, C = supp_fg_fts.shape
         N2, C = supp_bg_fts.shape
+        N1_q, C = qry_fg_fts.shape
+        N2_q, C = qry_bg_fts.shape
 
         k = 2000 if N1 >= 2000 else N1
         indices = torch.tensor(random.sample(range(N1), k))

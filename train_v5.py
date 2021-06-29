@@ -4,6 +4,7 @@ import shutil
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import MultiStepLR
@@ -111,8 +112,8 @@ def main(_run, _config, _log):
 
         # extract foreground and background query features
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
-        fore_index = torch.where(qry_fts==1)
-        back_index = torch.where(qry_fts==0)
+        fore_index = torch.where(query_labels==1)
+        back_index = torch.where(query_labels==0)
         qry_fore_fts = qry_fts[:, :, fore_index[0], fore_index[1]]  # 1 * C * N1'
         qry_back_fts = qry_fts[:, :, back_index[0], back_index[1]]  # 1 * C * N2'
         qry_fg_fts = qry_fore_fts[0].transpose(0, 1)  # N1' * C
@@ -127,15 +128,23 @@ def main(_run, _config, _log):
         k = 2000 if N1 >= 2000 else N1
         indices = torch.tensor(random.sample(range(N1), k))
         supp_fg_fts = supp_fg_fts[indices]
-        fg_label = torch.full((k, ), 1)
+        supp_fg_label = torch.full((k, ), 1)
+        k = 2000 if N1_q >= 2000 else N1_q
+        indices = torch.tensor(random.sample(range(N1_q), k))
+        qry_fg_fts = qry_fg_fts[indices]
+        qry_fg_label = torch.full((k, ), 1)
 
         k = 1000 if N2 >= 1000 else N2
         indices = torch.tensor(random.sample(range(N2), k))
         supp_bg_fts = supp_bg_fts[indices]
-        bg_label = torch.full((k, ), 0)
+        supp_bg_label = torch.full((k, ), 0)
+        k = 1000 if N2_q >= 1000 else N2_q
+        indices = torch.tensor(random.sample(range(N2_q), k))
+        qry_bg_fts = qry_bg_fts[indices]
+        qry_bg_label = torch.full((k, ), 0)
 
-        fts = torch.cat((supp_fg_fts, supp_bg_fts), dim=0)  # 3000 * C
-        label = torch.cat((fg_label, bg_label))  # 3000 
+        fts = torch.cat((supp_fg_fts, qry_fg_fts, supp_bg_fts, qry_bg_fts), dim=0)  # 6000 * C
+        label = torch.cat((supp_fg_label, qry_fg_label, supp_bg_label, qry_bg_label))  # 6000 
 
 
 

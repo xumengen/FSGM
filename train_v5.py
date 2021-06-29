@@ -82,7 +82,8 @@ def main(_run, _config, _log):
     scheduler = MultiStepLR(optimizer, milestones=_config['lr_milestones'], gamma=0.1)
     criterion = nn.CrossEntropyLoss(ignore_index=_config['ignore_label'])
     # loss_func = losses.ContrastiveLoss(distance = CosineSimilarity())
-    loss_func = losses.CircleLoss(distance = CosineSimilarity())
+    # loss_func = losses.CircleLoss(distance = CosineSimilarity())
+    loss_func = losses.MultiSimilarityLoss()
 
     i_iter = 0
     log_loss = {'loss': 0, 'align_loss': 0}

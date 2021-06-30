@@ -98,7 +98,7 @@ def cfg():
     exp_str = '_'.join(
         [dataset,]
         + [key for key, value in model.items() if value]
-        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'Metric_ProxyAnchorLoss'])
+        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'Metric_MultiSimilarityLoss_with_query'])
 
 
     path = {

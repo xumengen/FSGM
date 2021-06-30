@@ -19,6 +19,7 @@ from config import ex
 
 from pytorch_metric_learning import miners, losses
 from pytorch_metric_learning.distances import CosineSimilarity
+
 import random
 
 
@@ -83,6 +84,7 @@ def main(_run, _config, _log):
     criterion = nn.CrossEntropyLoss(ignore_index=_config['ignore_label'])
     # loss_func = losses.ContrastiveLoss(distance = CosineSimilarity())
     # loss_func = losses.CircleLoss(distance = CosineSimilarity())
+    miner = miners.MultiSimilarityMiner()
     loss_func = losses.MultiSimilarityLoss()
 
     i_iter = 0
@@ -126,6 +128,9 @@ def main(_run, _config, _log):
         N1_q, C = qry_fg_fts.shape
         N2_q, C = qry_bg_fts.shape
 
+        if not N1_q or not N2_q:
+            continue
+
         k = 2000 if N1 >= 2000 else N1
         indices = torch.tensor(random.sample(range(N1), k))
         supp_fg_fts = supp_fg_fts[indices]
@@ -144,13 +149,14 @@ def main(_run, _config, _log):
         qry_bg_fts = qry_bg_fts[indices]
         qry_bg_label = torch.full((k, ), 0)
 
+
         fts = torch.cat((supp_fg_fts, supp_bg_fts, qry_fg_fts, qry_bg_fts), dim=0)  # 6000 * C
         label = torch.cat((supp_fg_label, supp_bg_label, qry_fg_label, qry_bg_label))  # 6000 
         # fts = torch.cat((qry_fg_fts, qry_bg_fts), dim=0)
         # label = torch.cat((qry_fg_label, qry_bg_label))
 
-
-        loss = loss_func(fts, label.cuda())
+        hard_pairs = miner(fts, label, )
+        loss = loss_func(fts, label.cuda(), hard_pairs)
         # loss = query_loss + align_loss * _config['align_loss_scaler']
         loss.backward()
         optimizer.step()

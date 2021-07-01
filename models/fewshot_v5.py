@@ -71,32 +71,38 @@ class FewShotSeg(nn.Module):
         outputs = []
         for epi in range(batch_size):
             ###### Extract prototype ######
-            supp_fg_fts = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
+            supp_fg_fts_metric = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
                                              fore_mask[way, shot, [epi]])
                             for shot in range(n_shots)] for way in range(n_ways)]
-            supp_bg_fts = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
+            supp_bg_fts_metric = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
                                              back_mask[way, shot, [epi]])
                             for shot in range(n_shots)] for way in range(n_ways)]
 
-            ###### Obtain the sample######
-            # fg_samples, bg_samples = self.getSample(supp_fg_fts, supp_bg_fts)
+            supp_fg_fts = [[self.getFeatures(supp_fts[way, shot, [epi]],
+                                             fore_mask[way, shot, [epi]])
+                            for shot in range(n_shots)] for way in range(n_ways)]
+            supp_bg_fts = [[self.getFeatures(supp_fts[way, shot, [epi]],
+                                             back_mask[way, shot, [epi]])
+                            for shot in range(n_shots)] for way in range(n_ways)]
 
-        #     ###### Compute the distance ######
-        #     prototypes = [bg_prototype,] + fg_prototypes
-        #     dist = [self.calDist(qry_fts[:, epi], prototype) for prototype in prototypes]
-        #     pred = torch.stack(dist, dim=1)  # N x (1 + Wa) x H' x W'
-        #     outputs.append(F.interpolate(pred, size=img_size, mode='bilinear'))
+            ###### Obtain the prototypes######
+            fg_prototypes, bg_prototype = self.getPrototype(supp_fg_fts, supp_bg_fts)
 
-        #     ###### Prototype alignment loss ######
-        #     if self.config['align'] and self.training:
-        #         align_loss_epi = self.alignLoss(qry_fts[:, epi], pred, supp_fts[:, :, epi],
-        #                                         fore_mask[:, :, epi], back_mask[:, :, epi])
-        #         align_loss += align_loss_epi
+            ###### Compute the distance ######
+            prototypes = [bg_prototype,] + fg_prototypes
+            dist = [self.calDist(qry_fts[:, epi], prototype) for prototype in prototypes]
+            pred = torch.stack(dist, dim=1)  # N x (1 + Wa) x H' x W'
+            outputs.append(F.interpolate(pred, size=img_size, mode='bilinear'))
 
-        # output = torch.stack(outputs, dim=1)  # N x B x (1 + Wa) x H x W
-        # output = output.view(-1, *output.shape[2:])
-        # return output, align_loss / batch_size
-        return supp_fg_fts, supp_bg_fts, qry_fts
+            ###### Prototype alignment loss ######
+            if self.config['align'] and self.training:
+                align_loss_epi = self.alignLoss(qry_fts[:, epi], pred, supp_fts[:, :, epi],
+                                                fore_mask[:, :, epi], back_mask[:, :, epi])
+                align_loss += align_loss_epi
+
+        output = torch.stack(outputs, dim=1)  # N x B x (1 + Wa) x H x W
+        output = output.view(-1, *output.shape[2:])
+        return supp_fg_fts_metric, supp_bg_fts_metric, qry_fts, output, align_loss / batch_size
 
 
     def calDist(self, fts, prototype, scaler=20):

@@ -110,8 +110,16 @@ def main(_run, _config, _log):
                                        query_images)
         
         # Metric learning
-        supp_fg_fts = supp_fg_fts[0][0].squeeze().transpose(0, 1)  # N1 * C
-        supp_bg_fts = supp_bg_fts[0][0].squeeze().transpose(0, 1)  # N2 * C
+        supp_fg_fts_list = []
+        supp_bg_fts_list = []
+        for j in range(len(supp_fg_fts[0])):
+            supp_fg_fts_list.append(supp_fg_fts[0][j].squeeze().transpose(0, 1))
+            supp_bg_fts_list.append(supp_bg_fts[0][j].squeeze().transpose(0, 1))
+        supp_fg_fts = torch.cat(supp_fg_fts_list, dim=0)  # N1 * C
+        supp_bg_fts = torch.cat(supp_bg_fts_list, dim=0)  # N2 * C
+
+        # supp_fg_fts = supp_fg_fts[0][0].squeeze().transpose(0, 1)  # N1 * C
+        # supp_bg_fts = supp_bg_fts[0][0].squeeze().transpose(0, 1)  # N2 * C
 
         # extract foreground and background query features
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
@@ -122,41 +130,36 @@ def main(_run, _config, _log):
         qry_fg_fts = qry_fore_fts[0].transpose(0, 1)  # N1' * C
         qry_bg_fts = qry_back_fts[0].transpose(0, 1)  # N2' * C
 
+        # concat fts
+        fg_fts = torch.cat((supp_fg_fts, qry_fg_fts), dim=0)
+        bg_fts = torch.cat((supp_bg_fts, qry_bg_fts), dim=0)
+        
         # sample the features
-        N1, C = supp_fg_fts.shape
-        N2, C = supp_bg_fts.shape
-        N1_q, C = qry_fg_fts.shape
-        N2_q, C = qry_bg_fts.shape
+        Nf, C = fg_fts.shape
+        Nb, C = bg_fts.shape
 
-        if not N1_q or not N2_q:
+        if not Nf or not Nb:
             continue
 
-        k = 2000 if N1 >= 2000 else N1
-        indices = torch.tensor(random.sample(range(N1), k))
-        supp_fg_fts = supp_fg_fts[indices]
-        supp_fg_label = torch.full((k, ), 1)
-        k = 2000 if N1_q >= 2000 else N1_q
-        indices = torch.tensor(random.sample(range(N1_q), k))
-        qry_fg_fts = qry_fg_fts[indices]
-        qry_fg_label = torch.full((k, ), 1)
+        # compute loss
+        k = 3000 if Nf >= 3000 else Nf
+        indices = torch.tensor(random.sample(range(Nf), k))
+        fg_fts_sample = fg_fts[indices]
+        fg_label_sample = torch.full((k, ), 1)
 
-        k = 1000 if N2 >= 1000 else N2
-        indices = torch.tensor(random.sample(range(N2), k))
-        supp_bg_fts = supp_bg_fts[indices]
-        supp_bg_label = torch.full((k, ), 0)
-        k = 1000 if N2_q >= 1000 else N2_q
-        indices = torch.tensor(random.sample(range(N2_q), k))
-        qry_bg_fts = qry_bg_fts[indices]
-        qry_bg_label = torch.full((k, ), 0)
+        k = 3000 if Nb >= 3000 else Nb
+        indices = torch.tensor(random.sample(range(Nb), k))
+        bg_fts_sample = bg_fts[indices]
+        bg_label_sample = torch.full((k, ), 0)
 
-
-        fts = torch.cat((supp_fg_fts, supp_bg_fts, qry_fg_fts, qry_bg_fts), dim=0)  # 6000 * C
-        label = torch.cat((supp_fg_label, supp_bg_label, qry_fg_label, qry_bg_label))  # 6000 
+        fts = torch.cat((fg_fts_sample, bg_fts_sample), dim=0)  # 6000 * C
+        label = torch.cat((fg_label_sample, bg_label_sample))  # 6000
         # fts = torch.cat((qry_fg_fts, qry_bg_fts), dim=0)
         # label = torch.cat((qry_fg_label, qry_bg_label))
 
-        hard_pairs = miner(fts, label, )
+        hard_pairs = miner(fts, label)
         loss = loss_func(fts, label.cuda(), hard_pairs)
+        
         # loss = query_loss + align_loss * _config['align_loss_scaler']
         loss.backward()
         optimizer.step()

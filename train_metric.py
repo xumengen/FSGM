@@ -85,7 +85,13 @@ def main(_run, _config, _log):
     # loss_func = losses.ContrastiveLoss(distance = CosineSimilarity())
     # loss_func = losses.CircleLoss(distance = CosineSimilarity())
     miner = miners.MultiSimilarityMiner()
-    loss_func = losses.MultiSimilarityLoss()
+    # loss_func = losses.MultiSimilarityLoss()
+    # loss_func = losses.NCALoss()
+    # loss_func = losses.NormalizedSoftmaxLoss(num_classes=2, embedding_size=512)
+    # main_loss = losses.TupletMarginLoss()
+    # var_loss = losses.IntraPairVarianceLoss()
+    # loss_func = losses.MultipleLosses([main_loss, var_loss], weights=[1, 0.5])
+    loss_func = losses.ContrastiveLoss()
 
     i_iter = 0
     log_loss = {'loss': 0, 'align_loss': 0}
@@ -142,12 +148,12 @@ def main(_run, _config, _log):
             continue
 
         # compute loss
-        k = 3000 if Nf >= 3000 else Nf
+        k = 5000 if Nf >= 5000 else Nf
         indices = torch.tensor(random.sample(range(Nf), k))
         fg_fts_sample = fg_fts[indices]
         fg_label_sample = torch.full((k, ), 1)
 
-        k = 3000 if Nb >= 3000 else Nb
+        k = 5000 if Nb >= 5000 else Nb
         indices = torch.tensor(random.sample(range(Nb), k))
         bg_fts_sample = bg_fts[indices]
         bg_label_sample = torch.full((k, ), 0)

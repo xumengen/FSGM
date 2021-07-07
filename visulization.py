@@ -126,9 +126,18 @@ def main(_run, _config, _log):
                 query_pred = np.array(query_pred.argmax(dim=1)[0].cpu()) * 255
                 print(query_pred.shape)
                 print(query_pred)
+                print(len(np.where(query_pred==255)[0]))
 
                 img = Image.fromarray(query_pred, "L")
                 img.save("./debug.png")
+
+                gt_img = np.array(sample_batched['query_labels'][0])
+                print(gt_img.shape)
+                print(np.unique(gt_img))
+                print(len(np.where(gt_img==1)[0]))
+
+                gt_img = Image.fromarray(gt_img[0])
+                gt_img.save("./gt.png")
                 print(a[0])
 
                 

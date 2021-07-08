@@ -118,11 +118,14 @@ def main(_run, _config, _log):
         # Metric learning
         supp_fg_fts_list = []
         supp_bg_fts_list = []
-        for j in range(len(supp_fg_fts[0])):
-            supp_fg_fts_list.append(supp_fg_fts[0][j].squeeze().transpose(0, 1))
-            supp_bg_fts_list.append(supp_bg_fts[0][j].squeeze().transpose(0, 1))
-        supp_fg_fts = torch.cat(supp_fg_fts_list, dim=0)  # N1 * C
-        supp_bg_fts = torch.cat(supp_bg_fts_list, dim=0)  # N2 * C
+        try:
+            for j in range(len(supp_fg_fts[0])):
+                supp_fg_fts_list.append(supp_fg_fts[0][j].squeeze().transpose(0, 1))
+                supp_bg_fts_list.append(supp_bg_fts[0][j].squeeze().transpose(0, 1))
+            supp_fg_fts = torch.cat(supp_fg_fts_list, dim=0)  # N1 * C
+            supp_bg_fts = torch.cat(supp_bg_fts_list, dim=0)  # N2 * C
+        except:
+            continue
 
         # supp_fg_fts = supp_fg_fts[0][0].squeeze().transpose(0, 1)  # N1 * C
         # supp_bg_fts = supp_bg_fts[0][0].squeeze().transpose(0, 1)  # N2 * C
@@ -148,12 +151,12 @@ def main(_run, _config, _log):
             continue
 
         # compute loss
-        k = 5000 if Nf >= 5000 else Nf
+        k = 3000 if Nf >= 3000 else Nf
         indices = torch.tensor(random.sample(range(Nf), k))
         fg_fts_sample = fg_fts[indices]
         fg_label_sample = torch.full((k, ), 1)
 
-        k = 5000 if Nb >= 5000 else Nb
+        k = 3000 if Nb >= 3000 else Nb
         indices = torch.tensor(random.sample(range(Nb), k))
         bg_fts_sample = bg_fts[indices]
         bg_label_sample = torch.full((k, ), 0)

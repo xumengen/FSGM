@@ -12,7 +12,7 @@ from sacred.utils import apply_backspaces_and_linefeeds
 sacred.SETTINGS['CONFIG']['READ_ONLY_CONFIG'] = False
 sacred.SETTINGS.CAPTURE_MODE = 'no'
 
-ex = Experiment('PANet')
+ex = Experiment('Metric')
 ex.captured_out_filter = apply_backspaces_and_linefeeds
 
 source_folders = ['.', './dataloaders', './models', './util']
@@ -33,18 +33,19 @@ def cfg():
 
     if mode == 'train':
         dataset = 'VOC'  # 'VOC' or 'COCO'
-        n_steps = 50000
+        n_steps = 30000
         label_sets = 0
         batch_size = 1
-        lr_milestones = [20000, 30000, 40000]
+        lr_milestones = [10000, 20000, 30000]
         align_loss_scaler = 1
         ignore_label = 255
         print_interval = 100
         save_pred_every = 5000
-
-        model = {
-            'align': True,
-        }
+        loss = 'ContrastiveLoss'
+        miner = 'MultiSimilarityMiner'
+        encoder = 'FPN'
+        sample_num = 3000
+        output_feature_length = 512
 
         task = {
             'n_ways': 1,
@@ -76,11 +77,6 @@ def cfg():
         else:
             raise ValueError('Wrong snapshot name !')
 
-        # Set model config from the snapshot string
-        model = {}
-        for key in ['align',]:
-            model[key] = key in snapshot
-
         # Set label_sets from the snapshot string
         label_sets = int(snapshot.split('_sets_')[1][0])
 
@@ -97,8 +93,7 @@ def cfg():
 
     exp_str = '_'.join(
         [dataset,]
-        + [key for key, value in model.items() if value]
-        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'Metric_MultiSimilarityLoss_with_query'])
+        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', f'{encoder}', f'{loss}', f'{miner}'])
 
 
     path = {
@@ -106,7 +101,7 @@ def cfg():
         'init_path': './pretrained_model/vgg16-397923af.pth',
         'VOC':{'data_dir': './data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
-        'COCO':{'data_dir': '../../data/COCO/',
+        'COCO':{'data_dir': './data/COCO/',
                 'data_split': 'train',},
     }
 

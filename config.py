@@ -37,13 +37,12 @@ def cfg():
         label_sets = 0
         batch_size = 1
         lr_milestones = [10000, 20000, 30000]
-        align_loss_scaler = 1
         ignore_label = 255
         print_interval = 100
         save_pred_every = 5000
         loss = 'ContrastiveLoss'
         miner = 'MultiSimilarityMiner'
-        encoder = 'FPN'
+        encoder = 'VGG'
         sample_num = 3000
         output_feature_length = 512
 
@@ -99,7 +98,7 @@ def cfg():
     path = {
         'log_dir': './runs',
         'init_path': './pretrained_model/vgg16-397923af.pth',
-        'VOC':{'data_dir': './data/Pascal/VOCdevkit/VOC2012/',
+        'VOC':{'data_dir': '/mnt/data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
         'COCO':{'data_dir': './data/COCO/',
                 'data_split': 'train',},

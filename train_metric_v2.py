@@ -2,6 +2,7 @@
 import os
 import shutil
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -129,7 +130,7 @@ def main(_run, _config, _log):
         try:
             for i in range(len(supp_fg_fts)):
                 for j in range(len(supp_fg_fts[0])):
-                    supp_fg_fts_list[i]].append(supp_fg_fts[i][j].squeeze().transpose(0, 1))
+                    supp_fg_fts_list[i].append(supp_fg_fts[i][j].squeeze().transpose(0, 1))
                     supp_bg_fts_list.append(supp_bg_fts[i][j].squeeze().transpose(0, 1))
             
             # supp fg fts
@@ -149,18 +150,18 @@ def main(_run, _config, _log):
         qry_fts_list = []
         for num in label_num:
             index = torch.where(query_labels==num)
-            qry_ts = qry_fts[:, :, index[-2], index[-1]]  # 1 * C * N1'
-            qry_fts_list.append(qry_fts[0].transpose(0, 1))  # N1' * C
+            qry_fts_num = qry_fts[:, :, index[-2], index[-1]]  # 1 * C * N1'
+            qry_fts_list.append(qry_fts_num[0].transpose(0, 1))  # N1' * C
 
         # concat fts
         concat_fts = []
         for i in range(len(supp_fts_list)):
-            concat_fts.append((supp_fts_list[0], qry_fts_list[0]), dim=0)
+            concat_fts.append(torch.cat((supp_fts_list[i], qry_fts_list[i]), dim=0))
         
         # sample the features
         N_nums = []
         for i in range(len(concat_fts)):
-            N_nums.append(concat_fts.shape[0])
+            N_nums.append(concat_fts[i].shape[0])
 
         if not np.array(N_nums).all():
             continue
@@ -196,7 +197,7 @@ def main(_run, _config, _log):
         # print loss and take snapshots
         if (i_iter + 1) % _config['print_interval'] == 0:
             loss = log_loss['loss'] / (i_iter + 1)
-            print(f'step {i_iter+1}: loss: {loss})
+            print(f'step {i_iter+1}: loss: {loss}')
 
         if (i_iter + 1) % _config['save_pred_every'] == 0:
             _log.info('###### Taking snapshot ######')

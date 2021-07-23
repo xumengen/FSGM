@@ -32,7 +32,7 @@ class FewShotSeg(nn.Module):
         # Encoder
         # self.encoder = nn.Sequential(OrderedDict([
         #     ('backbone', Encoder(in_channels, self.pretrained_path)),]))
-        self.encoder = smp.Unet(
+        self.encoder = smp.Unet++(
             encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
             in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
@@ -78,31 +78,32 @@ class FewShotSeg(nn.Module):
         outputs = []
         for epi in range(batch_size):
             ###### Extract prototype ######
-            supp_fg_fts = [[self.getFeatures(supp_fts[way, shot, [epi]],
+            supp_fg_fts = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
                                              fore_mask[way, shot, [epi]])
                             for shot in range(n_shots)] for way in range(n_ways)]
-            supp_bg_fts = [[self.getFeatures(supp_fts[way, shot, [epi]],
+            supp_bg_fts = [[self.getFeatures_v2(supp_fts[way, shot, [epi]],
                                              back_mask[way, shot, [epi]])
                             for shot in range(n_shots)] for way in range(n_ways)]
 
-            ###### Obtain the prototypes######
-            fg_prototypes, bg_prototype = self.getPrototype(supp_fg_fts, supp_bg_fts)
+            ###### Obtain the sample######
+            # fg_samples, bg_samples = self.getSample(supp_fg_fts, supp_bg_fts)
 
-            ###### Compute the distance ######
-            prototypes = [bg_prototype,] + fg_prototypes
-            dist = [self.calDist(qry_fts[:, epi], prototype) for prototype in prototypes]
-            pred = torch.stack(dist, dim=1)  # N x (1 + Wa) x H' x W'
-            outputs.append(F.interpolate(pred, size=img_size, mode='bilinear'))
+        #     ###### Compute the distance ######
+        #     prototypes = [bg_prototype,] + fg_prototypes
+        #     dist = [self.calDist(qry_fts[:, epi], prototype) for prototype in prototypes]
+        #     pred = torch.stack(dist, dim=1)  # N x (1 + Wa) x H' x W'
+        #     outputs.append(F.interpolate(pred, size=img_size, mode='bilinear'))
 
-            ###### Prototype alignment loss ######
-            if self.config['align'] and self.training:
-                align_loss_epi = self.alignLoss(qry_fts[:, epi], pred, supp_fts[:, :, epi],
-                                                fore_mask[:, :, epi], back_mask[:, :, epi])
-                align_loss += align_loss_epi
+        #     ###### Prototype alignment loss ######
+        #     if self.config['align'] and self.training:
+        #         align_loss_epi = self.alignLoss(qry_fts[:, epi], pred, supp_fts[:, :, epi],
+        #                                         fore_mask[:, :, epi], back_mask[:, :, epi])
+        #         align_loss += align_loss_epi
 
-        output = torch.stack(outputs, dim=1)  # N x B x (1 + Wa) x H x W
-        output = output.view(-1, *output.shape[2:])
-        return output, align_loss / batch_size
+        # output = torch.stack(outputs, dim=1)  # N x B x (1 + Wa) x H x W
+        # output = output.view(-1, *output.shape[2:])
+        # return output, align_loss / batch_size
+        return supp_fg_fts, supp_bg_fts, qry_fts
 
 
     def calDist(self, fts, prototype, scaler=20):
@@ -131,6 +132,32 @@ class FewShotSeg(nn.Module):
         masked_fts = torch.sum(fts * mask[None, ...], dim=(2, 3)) \
             / (mask[None, ...].sum(dim=(2, 3)) + 1e-5) # 1 x C
         return masked_fts
+
+
+    def getFeatures_v2(self, fts, mask):
+        """
+        Extract foreground and background features via masked average pooling
+
+        Args:
+            fts: input features, expect shape: 1 x C x H' x W'
+            mask: binary mask, expect shape: 1 x H x W
+        """
+        fts = F.interpolate(fts, size=mask.shape[-2:], mode='bilinear')  # 1 * C * H * W
+        positive_mask = torch.nonzero(mask, as_tuple=True)
+        
+        # masked_fts = torch.sum(fts * mask[None, ...], dim=(2, 3)) \
+        #     / (mask[None, ...].sum(dim=(2, 3)) + 1e-5) # 1 x C
+        return fts[:, :, positive_mask[-2], positive_mask[-1]]
+
+
+    def getSample(self, fg_fts, bg_fts):
+        """
+        fg_fts: Wa * Sh * [1 * C * N1]
+        bg_fts: Wa * Sh * [1 * C * N2]
+        """
+        pass
+
+
 
 
     def getPrototype(self, fg_fts, bg_fts):

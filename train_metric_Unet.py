@@ -11,11 +11,19 @@ from torch.optim.lr_scheduler import MultiStepLR
 import torch.backends.cudnn as cudnn
 from torchvision.transforms import Compose
 
+<<<<<<< HEAD
 from models.fewshot_Unet import FewShotSeg
 from dataloaders.customized import voc_fewshot, coco_fewshot
 from dataloaders.transforms import RandomMirror, Resize, ToTensorNormalize
 from util.utils import set_seed, CLASS_LABELS
 from config_Unet import ex
+=======
+from models.fewshot_UNet import FewShotSeg
+from dataloaders.customized import voc_fewshot, coco_fewshot
+from dataloaders.transforms import RandomMirror, Resize, ToTensorNormalize
+from util.utils import set_seed, CLASS_LABELS
+from config import ex
+>>>>>>> cd64d6a93ce330fe36bedb5992279fca44a17549
 
 from pytorch_metric_learning import miners, losses
 from pytorch_metric_learning.distances import CosineSimilarity

@@ -17,7 +17,7 @@ from dataloaders.transforms import ToTensorNormalize
 from dataloaders.transforms import Resize, DilateScribble
 from util.metric import Metric
 from util.utils import set_seed, CLASS_LABELS, get_bbox
-from config import ex
+from config_FPN import ex
 
 
 @ex.automain

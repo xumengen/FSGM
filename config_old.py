@@ -29,9 +29,6 @@ def cfg():
     cuda_visable = '0, 1, 2, 3, 4, 5, 6, 7'
     gpu_id = 0
     mode = 'test' # 'train' or 'test'
-    encoder = 'VGG'
-    loss = 'ContrastiveLoss'
-    miner = 'MultiSimilarityMiner'
 
 
     if mode == 'train':
@@ -40,11 +37,14 @@ def cfg():
         label_sets = 0
         batch_size = 1
         lr_milestones = [10000, 20000, 30000]
+        align_loss_scaler = 1
         ignore_label = 255
         print_interval = 100
         save_pred_every = 5000
-        sample_num = 2000
-        output_feature_length = 512
+
+        model = {
+            'align': True,
+        }
 
         task = {
             'n_ways': 1,
@@ -76,6 +76,11 @@ def cfg():
         else:
             raise ValueError('Wrong snapshot name !')
 
+        # Set model config from the snapshot string
+        model = {}
+        for key in ['align',]:
+            model[key] = key in snapshot
+
         # Set label_sets from the snapshot string
         label_sets = int(snapshot.split('_sets_')[1][0])
 
@@ -92,12 +97,14 @@ def cfg():
 
     exp_str = '_'.join(
         [dataset,]
-        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', f'{encoder}', f'{loss}', f'{miner}'])
+        + [key for key, value in model.items() if value]
+        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', 'ContrastiveLoss'])
 
 
     path = {
         'log_dir': './runs',
         'init_path': './pretrained_model/vgg16-397923af.pth',
+        # 'init_path': './pretrained_model/resnet50-19c8e357.pth',
         'VOC':{'data_dir': '/mnt/data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
         'COCO':{'data_dir': './data/COCO/',

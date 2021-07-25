@@ -148,8 +148,8 @@ def main(_run, _config, _log):
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
         label_num = torch.unique(query_labels)
         qry_fts_list = []
-        for num in label_num:
-            index = torch.where(query_labels==num)
+        for i in range(len(supp_fts_list)):
+            index = torch.where(query_labels==i)
             qry_fts_num = qry_fts[:, :, index[-2], index[-1]]  # 1 * C * N1'
             qry_fts_list.append(qry_fts_num[0].transpose(0, 1))  # N1' * C
 

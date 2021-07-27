@@ -35,31 +35,38 @@ class FewShotSeg(nn.Module):
 
         elif config['encoder'] == 'FPN':
             self.encoder = smp.FPN(
-                encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-                encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-                in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-                classes=config['output_feature_length'],                     # model output channels (number of classes in your dataset)
+                encoder_name="resnet101",       
+                encoder_weights="imagenet",     
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
             )
         elif config['encoder'] == 'FPNnopretrain':
             self.encoder = smp.FPN(
-                encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-                # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-                in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-                classes=config['output_feature_length'],                     # model output channels (number of classes in your dataset)
+                encoder_name="resnet101",        
+                # encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
             )
         elif config['encoder'] == 'Unet':
             self.encoder = smp.Unet(
-                encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-                encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-                in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-                classes=config['output_feature_length'],                     # model output channels (number of classes in your dataset)
+                encoder_name="resnet101",       
+                encoder_weights="imagenet",     
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
             )
         elif config['encoder'] == 'Unetnopretrain':
             self.encoder = smp.Unet(
-                encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-                # encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-                in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-                classes=config['output_feature_length'],                     # model output channels (number of classes in your dataset)
+                encoder_name="resnet101",        
+                # encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
+        elif config['encoder'] == 'DeepLabV3':
+            self.encoder = smp.DeepLabV3(
+                encoder_name="resnet101",        
+                encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
             )
 
 

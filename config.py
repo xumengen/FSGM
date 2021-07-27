@@ -32,6 +32,7 @@ def cfg():
     encoder = 'VGG'
     loss = 'ContrastiveLoss'
     miner = 'MultiSimilarityMiner'
+    output_feature_length = 512
 
 
     if mode == 'train':
@@ -43,8 +44,7 @@ def cfg():
         ignore_label = 255
         print_interval = 100
         save_pred_every = 5000
-        sample_num = 2000
-        output_feature_length = 512
+        sample_num = 3000
 
         task = {
             'n_ways': 1,
@@ -61,7 +61,7 @@ def cfg():
     elif mode == 'test':
         notrain = False
         snapshot = './runs/PANet_VOC_sets_0_1way_1shot_[train]/1/snapshots/30000.pth'
-        n_runs = 1
+        n_runs = 5 
         n_steps = 1000
         batch_size = 1
         scribble_dilation = 0
@@ -98,7 +98,7 @@ def cfg():
     path = {
         'log_dir': './runs',
         'init_path': './pretrained_model/vgg16-397923af.pth',
-        'VOC':{'data_dir': '/mnt/data/Pascal/VOCdevkit/VOC2012/',
+        'VOC':{'data_dir': './data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
         'COCO':{'data_dir': './data/COCO/',
                 'data_split': 'train',},

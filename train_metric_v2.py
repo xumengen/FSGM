@@ -90,7 +90,7 @@ def main(_run, _config, _log):
     elif _config['loss'] == 'ContrastiveLoss':
         loss_func = losses.ContrastiveLoss()
     elif _config['loss'] == 'ProxyNCALoss':
-        loss_func = losses.ProxyNCALoss()
+        loss_func = losses.ProxyNCALoss(num_classes=2, embedding_size=_config['output_feature_length'])
     elif _config['loss'] == 'ProxyAnchorLoss':
         loss_func = losses.ProxyAnchorLoss()
 

@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .vgg import Encoder
+import segmentation_models_pytorch as smp
 
 
 class FewShotSeg(nn.Module):
@@ -23,13 +24,50 @@ class FewShotSeg(nn.Module):
         cfg:
             model configurations
     """
-    def __init__(self, in_channels=3, pretrained_path=None):
+    def __init__(self, in_channels=3, pretrained_path=None, config=None):
         super().__init__()
         self.pretrained_path = pretrained_path
 
         # Encoder
-        self.encoder = nn.Sequential(OrderedDict([
-            ('backbone', Encoder(in_channels, self.pretrained_path)),]))
+        if config['encoder'] == 'VGG':
+            self.encoder = nn.Sequential(OrderedDict([
+                 ('backbone', Encoder(in_channels, self.pretrained_path)),]))
+
+        elif config['encoder'] == 'FPN':
+            self.encoder = smp.FPN(
+                encoder_name="resnet101",       
+                encoder_weights="imagenet",     
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
+        elif config['encoder'] == 'FPNnopretrain':
+            self.encoder = smp.FPN(
+                encoder_name="resnet101",        
+                # encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
+        elif config['encoder'] == 'Unet':
+            self.encoder = smp.Unet(
+                encoder_name="resnet101",       
+                encoder_weights="imagenet",     
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
+        elif config['encoder'] == 'Unetnopretrain':
+            self.encoder = smp.Unet(
+                encoder_name="resnet101",        
+                # encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
+        elif config['encoder'] == 'DeepLabV3':
+            self.encoder = smp.DeepLabV3(
+                encoder_name="resnet101",        
+                encoder_weights="imagenet",    
+                in_channels=3,                  
+                classes=config['output_feature_length'],                     
+            )
 
 
     def forward(self, supp_imgs, fore_mask, back_mask, qry_imgs):

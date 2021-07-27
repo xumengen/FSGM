@@ -36,7 +36,7 @@ def main(_run, _config, _log):
 
 
     _log.info('###### Create model ######')
-    model = FewShotSeg(pretrained_path=_config['path']['init_path'])
+    model = FewShotSeg(pretrained_path=_config['path']['init_path'], config=_config)
     model = nn.DataParallel(model.cuda(), device_ids=[_config['gpu_id'],])
     if not _config['notrain']:
         model.load_state_dict(torch.load(_config['snapshot'], map_location='cpu'))

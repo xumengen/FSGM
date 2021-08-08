@@ -8,6 +8,7 @@ from scipy import ndimage
 import numpy as np
 import torch
 import torchvision.transforms.functional as tr_F
+import albumentations as A
 
 
 class RandomMirror(object):
@@ -32,6 +33,25 @@ class RandomMirror(object):
         sample['inst'] = inst
         sample['scribble'] = scribble
         return sample
+
+class RandomBrightnessContrast(object):
+
+    def __init__(self):
+        self.transform = A.Compose([
+                    A.RandomBrightnessContrast(p=0.2),
+                        ])
+
+    def __call__(self, sample):
+        img, label = sample['image'], sample['label']
+        inst, scribble = sample['inst'], sample['scribble']
+        img = self.transform(image=np.array(img))['image']
+
+        sample['image'] = img
+        sample['label'] = label
+        sample['inst'] = inst
+        sample['scribble'] = scribble
+        return sample
+
 
 class Resize(object):
     """

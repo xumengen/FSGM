@@ -33,6 +33,7 @@ def cfg():
     loss = 'ContrastiveLoss'
     miner = 'MultiSimilarityMiner'
     output_feature_length = 512
+    sample_num = 3000
 
 
     if mode == 'train':
@@ -44,7 +45,6 @@ def cfg():
         ignore_label = 255
         print_interval = 100
         save_pred_every = 5000
-        sample_num = 3000
 
         task = {
             'n_ways': 1,
@@ -92,13 +92,13 @@ def cfg():
 
     exp_str = '_'.join(
         [dataset,]
-        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', f'{encoder}', f'{loss}', f'{miner}'])
+        + [f'sets_{label_sets}', f'{task["n_ways"]}way_{task["n_shots"]}shot_[{mode}]', f'{encoder}', f'{loss}', f'{miner}', f'{sample_num}'])
 
 
     path = {
         'log_dir': './runs',
         'init_path': './pretrained_model/vgg16-397923af.pth',
-        'VOC':{'data_dir': './data/Pascal/VOCdevkit/VOC2012/',
+        'VOC':{'data_dir': '/mnt/data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
         'COCO':{'data_dir': './data/COCO/',
                 'data_split': 'train',},

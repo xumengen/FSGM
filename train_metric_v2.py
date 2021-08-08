@@ -14,7 +14,7 @@ from torchvision.transforms import Compose
 
 from models.fewshot import FewShotSeg
 from dataloaders.customized import voc_fewshot, coco_fewshot
-from dataloaders.transforms import RandomMirror, Resize, ToTensorNormalize
+from dataloaders.transforms import RandomMirror, Resize, ToTensorNormalize, RandomBrightnessContrast
 from util.utils import set_seed, CLASS_LABELS
 from config import ex
 
@@ -59,6 +59,7 @@ def main(_run, _config, _log):
     labels = CLASS_LABELS[data_name][_config['label_sets']]
     transforms = Compose([Resize(size=_config['input_size']),
                           RandomMirror()])
+                          #RandomBrightnessContrast()])
     dataset = make_data(
         base_dir=_config['path'][data_name]['data_dir'],
         split=_config['path'][data_name]['data_split'],
@@ -181,12 +182,9 @@ def main(_run, _config, _log):
         hard_pairs = miner(fts, label)
         loss = loss_func(fts, label.cuda(), hard_pairs)
 
-        try:
-            loss.backward()
-            optimizer.step()
-            scheduler.step()
-        except:
-            continue
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
 
         # Log loss
         loss = loss.detach().data.cpu().numpy()

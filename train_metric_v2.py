@@ -100,8 +100,8 @@ def main(_run, _config, _log):
         miner = miners.MultiSimilarityMiner()
     elif _config['miner'] == 'PairMarginMiner':
         miner = miners.PairMarginMiner()
-    elif _config['miner'] == 'MaximumLossMiner':
-        miner = miner.MaximumLossMiner()
+    elif _config['miner'] == 'TripletMarginMiner':
+        miner = miners.TripletMarginMiner()
 
     i_iter = 0
     log_loss = {'loss': 0}

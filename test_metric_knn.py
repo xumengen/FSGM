@@ -131,25 +131,35 @@ def main(_run, _config, _log):
                 N1, C = supp_fg_fts.shape
                 N2, C = supp_bg_fts.shape
 
-                # k = 2000 if N1 >= 2000 else N1
-                # indices = torch.tensor(random.sample(range(N1), k))
-                # supp_fg_fts = supp_fg_fts[indices]  # 2000 * C
-                supp_fg_prototype = torch.mean(supp_fg_fts, dim=0, keepdim=True)  # 1 * C
+                k = 2000 if N1 >= 2000 else N1
+                indices = torch.tensor(random.sample(range(N1), k))
+                supp_fg_fts = supp_fg_fts[indices]  # 2000 * C
+                # supp_fg_prototype = torch.mean(supp_fg_fts, dim=0, keepdim=True)  # 1 * C
 
-                # k = 1000 if N2 >= 1000 else N2
-                # indices = torch.tensor(random.sample(range(N2), k))
-                # supp_bg_fts = supp_bg_fts[indices]  # 1000 * C
-                supp_bg_prototype = torch.mean(supp_bg_fts, dim=0, keepdim=True)  # 1 * C
+                k = 2000 if N2 >= 2000 else N2
+                indices = torch.tensor(random.sample(range(N2), k))
+                supp_bg_fts = supp_bg_fts[indices]  # 1000 * C
+                # supp_bg_prototype = torch.mean(supp_bg_fts, dim=0, keepdim=True)  # 1 * C
 
-                prototypes = [supp_bg_prototype, supp_fg_prototype]
+                # prototypes = [supp_bg_prototype, supp_fg_prototype]
+                fts = [supp_fg_fts, supp_bg_fts]
+                # fts = torch.cat((supp_fg_fts, supp_bg_fts), dim=0)
                 qry_fts = qry_fts[:, 0]  # 1 * C * H' * W'
                 dist = []
-                for prototype in prototypes:
-                    dist.append(F.cosine_similarity(qry_fts, prototype[..., None, None], dim=1) * 20)
-                query_pred = torch.stack(dist, dim=1)
+                # for prototype in prototypes:
+                for ft in fts:
+                    dist.append(F.cosine_similarity(qry_fts, ft[..., None, None], dim=1) * 20)
+                query_pred = torch.cat(dist, dim=0).unsqueeze(dim=0)
+                
                 query_pred = F.interpolate(query_pred, size=query_labels[0].shape[-2:], mode='bilinear')
-
-                metric.record(np.array(query_pred.argmax(dim=1)[0].cpu()),
+                
+                _, query_pred = torch.topk(query_pred, k=500, dim=1)
+                query_pred, _ = torch.mode(torch.where(query_pred<2000, 1, 0), dim=1)
+                
+                # _, query_pred = torch.max(query_pred, dim=1)
+                # query_pred = torch.where(query_pred<2000, 1, 0)
+                
+                metric.record(np.array(query_pred[0].cpu()),
                               np.array(query_labels[0].cpu()),
                               labels=label_ids, n_run=run)
 

@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 from torchvision.transforms import Compose
 
-from models.fewshot_v4 import FewShotSeg
+from models.fewshot import FewShotSeg
 from dataloaders.customized import voc_fewshot, coco_fewshot
 from dataloaders.transforms import ToTensorNormalize
 from dataloaders.transforms import Resize, DilateScribble
@@ -38,7 +38,7 @@ def main(_run, _config, _log):
 
 
     _log.info('###### Create model ######')
-    model = FewShotSeg(pretrained_path=_config['path']['init_path'], cfg=_config['model'])
+    model = FewShotSeg(pretrained_path=_config['path']['init_path'], config=_config)
     model = nn.DataParallel(model.cuda(), device_ids=[_config['gpu_id'],])
     if not _config['notrain']:
         model.load_state_dict(torch.load(_config['snapshot'], map_location='cpu'))
@@ -131,12 +131,12 @@ def main(_run, _config, _log):
                 N1, C = supp_fg_fts.shape
                 N2, C = supp_bg_fts.shape
 
-                k = 2000 if N1 >= 2000 else N1
+                k = 1000 if N1 >= 1000 else N1
                 indices = torch.tensor(random.sample(range(N1), k))
                 supp_fg_fts = supp_fg_fts[indices]  # 2000 * C
                 # supp_fg_prototype = torch.mean(supp_fg_fts, dim=0, keepdim=True)  # 1 * C
 
-                k = 2000 if N2 >= 2000 else N2
+                k = 1000 if N2 >= 1000 else N2
                 indices = torch.tensor(random.sample(range(N2), k))
                 supp_bg_fts = supp_bg_fts[indices]  # 1000 * C
                 # supp_bg_prototype = torch.mean(supp_bg_fts, dim=0, keepdim=True)  # 1 * C
@@ -153,8 +153,8 @@ def main(_run, _config, _log):
                 
                 query_pred = F.interpolate(query_pred, size=query_labels[0].shape[-2:], mode='bilinear')
                 
-                _, query_pred = torch.topk(query_pred, k=500, dim=1)
-                query_pred, _ = torch.mode(torch.where(query_pred<2000, 1, 0), dim=1)
+                _, query_pred = torch.topk(query_pred, k=100, dim=1)
+                query_pred, _ = torch.mode(torch.where(query_pred<1000, 1, 0), dim=1)
                 
                 # _, query_pred = torch.max(query_pred, dim=1)
                 # query_pred = torch.where(query_pred<2000, 1, 0)

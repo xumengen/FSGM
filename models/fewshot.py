@@ -47,22 +47,8 @@ class FewShotSeg(nn.Module):
                 in_channels=3,                  
                 classes=config['output_feature_length'],                     
             )
-        elif config['encoder'] == 'Unet':
-            self.encoder = smp.Unet(
-                encoder_name="resnet101",       
-                encoder_weights="imagenet",     
-                in_channels=3,                  
-                classes=config['output_feature_length'],                     
-            )
-        elif config['encoder'] == 'Unetnopretrain':
-            self.encoder = smp.Unet(
-                encoder_name="resnet101",        
-                # encoder_weights="imagenet",    
-                in_channels=3,                  
-                classes=config['output_feature_length'],                     
-            )
-        elif config['encoder'] == 'DeepLabV3':
-            self.encoder = smp.DeepLabV3(
+        elif config['encoder'] == 'Linknet':
+            self.encoder = smp.Linknet(
                 encoder_name="resnet101",        
                 encoder_weights="imagenet",    
                 in_channels=3,                  

@@ -12,13 +12,13 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 from torchvision.transforms import Compose
 
-from models.fewshot import FewShotSeg
+from models.fewshot_proto import FewShotSeg
 from dataloaders.customized import voc_fewshot, coco_fewshot
 from dataloaders.transforms import ToTensorNormalize
 from dataloaders.transforms import Resize, DilateScribble
 from util.metric import Metric
 from util.utils import set_seed, CLASS_LABELS, get_bbox
-from config_v2 import ex
+from config import ex
 
 
 @ex.automain
@@ -37,7 +37,7 @@ def main(_run, _config, _log):
 
 
     _log.info('###### Create model ######')
-    model = FewShotSeg(pretrained_path=_config['path']['init_path'], cfg=_config['model'])
+    model = FewShotSeg(pretrained_path=_config['path']['init_path'], config=_config)
     model = nn.DataParallel(model.cuda(), device_ids=[_config['gpu_id'],])
     if not _config['notrain']:
         model.load_state_dict(torch.load(_config['snapshot'], map_location='cpu'))
@@ -120,7 +120,7 @@ def main(_run, _config, _log):
                 query_labels = torch.cat(
                     [query_label.cuda()for query_label in sample_batched['query_labels']], dim=0)
 
-                query_pred, _ = model(support_images, support_fg_mask, support_bg_mask,
+                query_pred = model(support_images, support_fg_mask, support_bg_mask,
                                       query_images)
 
                 if not os.path.exists(os.path.join("./vis/{}".format(_config['label_sets']))):

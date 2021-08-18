@@ -124,8 +124,14 @@ def main(_run, _config, _log):
                                       query_images)
 
                 if not os.path.exists(os.path.join("./vis/{}".format(_config['label_sets']))):
+                    os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'support')))
                     os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'pred')))
                     os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'gt')))
+
+                support_img = np.array(sample_batched['support_images_t'][0][0])[0].transpose(1, 2, 0)
+                support_img = Image.fromarray(np.uint8(support_img)).convert('RGBA')
+                
+                support_img.save("./vis/{}/{}/{}.png".format(_config['label_sets'], 'support', count))
 
                 gt_img = np.array(sample_batched['query_images_t'][0])[0].transpose(1, 2, 0)
                 gt_img = Image.fromarray(np.uint8(gt_img)).convert('RGBA')

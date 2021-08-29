@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import MultiStepLR
 import torch.backends.cudnn as cudnn
 from torchvision.transforms import Compose
@@ -80,12 +81,14 @@ def main(_run, _config, _log):
         drop_last=True
     )
 
+    writer = SummaryWriter()
+
     _log.info('###### Set optimizer ######')
     optimizer = torch.optim.SGD(model.parameters(), **_config['optim'])
     scheduler = MultiStepLR(optimizer, milestones=_config['lr_milestones'], gamma=0.1)
     
     # loss func
-    assert _config['loss'] in ['MultiSimilarityLoss', 'ContrastiveLoss', 'ProxyNCALoss', 'ProxyAnchorLoss']
+    assert _config['loss'] in ['MultiSimilarityLoss', 'ContrastiveLoss', 'ProxyNCALoss', 'ProxynchorLoss']
     if _config['loss'] == 'MultiSimilarityLoss':
         loss_func = losses.MultiSimilarityLoss()
     elif _config['loss'] == 'ContrastiveLoss':
@@ -93,7 +96,7 @@ def main(_run, _config, _log):
     elif _config['loss'] == 'ProxyNCALoss':
         loss_func = losses.ProxyNCALoss(num_classes=2, embedding_size=_config['output_feature_length'])
     elif _config['loss'] == 'ProxyAnchorLoss':
-        loss_func = losses.ProxyAnchorLoss()
+        loss_func = losses.ProxyAnchorLoss(num_classes=2, embedding_size=_config['output_feature_length'])
 
     # miner
     if _config['miner'] == 'MultiSimilarityMiner':
@@ -185,6 +188,8 @@ def main(_run, _config, _log):
         loss.backward()
         optimizer.step()
         scheduler.step()
+
+        writer.add_scalar('Loss/loss', loss, i_iter)
 
         # Log loss
         loss = loss.detach().data.cpu().numpy()

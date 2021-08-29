@@ -24,7 +24,7 @@ for source_file in sources_to_save:
 @ex.config
 def cfg():
     """Default configurations"""
-    input_size = (512, 512)
+    input_size = (417, 417)
     seed = 1234
     cuda_visable = '0, 1, 2, 3, 4, 5, 6, 7'
     gpu_id = 0
@@ -98,7 +98,7 @@ def cfg():
     path = {
         'log_dir': './runs',
         'init_path': './pretrained_model/vgg16-397923af.pth',
-        'VOC':{'data_dir': '/mnt/data/Pascal/VOCdevkit/VOC2012/',
+        'VOC':{'data_dir': './data/Pascal/VOCdevkit/VOC2012/',
                'data_split': 'trainaug',},
         'COCO':{'data_dir': './data/COCO/',
                 'data_split': 'train',},

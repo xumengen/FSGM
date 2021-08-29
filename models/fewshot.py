@@ -47,13 +47,6 @@ class FewShotSeg(nn.Module):
                 in_channels=3,                  
                 classes=config['output_feature_length'],                     
             )
-        elif config['encoder'] == 'Linknet':
-            self.encoder = smp.Linknet(
-                encoder_name="resnet101",        
-                encoder_weights="imagenet",    
-                in_channels=3,                  
-                classes=config['output_feature_length'],                     
-            )
 
 
     def forward(self, supp_imgs, fore_mask, back_mask, qry_imgs):

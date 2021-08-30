@@ -125,14 +125,29 @@ def main(_run, _config, _log):
 
                 if not os.path.exists(os.path.join("./vis/{}".format(_config['label_sets']))):
                     os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'support')))
+                    os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'support_mask')))
                     os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'pred')))
                     os.makedirs(os.path.join("./vis/{}/{}".format(_config['label_sets'], 'gt')))
 
+                # support img
                 support_img = np.array(sample_batched['support_images_t'][0][0])[0].transpose(1, 2, 0)
                 support_img = Image.fromarray(np.uint8(support_img)).convert('RGBA')
                 
                 support_img.save("./vis/{}/{}/{}.png".format(_config['label_sets'], 'support', count))
 
+                # support mask
+                support_mask = np.array(sample_batched['support_mask'][0])[0]['fg_mask'] * 255
+                support_mask = support_mask[0]
+                support_mask = Image.fromarray(np.uint8(support_mask)).convert('L')
+
+                overlay = Image.new('RGBA', support_img.size, (255,255,255,0))
+                drawing = ImageDraw.Draw(overlay)
+                drawing.bitmap((0, 0), support_mask, fill=(0, 0, 255, 128))
+                image = Image.alpha_composite(support_img, overlay)
+                
+                image.save("./vis/{}/{}/{}.png".format(_config['label_sets'], 'support_mask', count))
+
+                # gt pred
                 gt_img = np.array(sample_batched['query_images_t'][0])[0].transpose(1, 2, 0)
                 gt_img = Image.fromarray(np.uint8(gt_img)).convert('RGBA')
 

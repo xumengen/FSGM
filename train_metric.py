@@ -148,7 +148,7 @@ def main(_run, _config, _log):
         except:
             continue
 
-        # extract foreground and background query features
+        # concat foreground and background query features
         qry_fts = F.interpolate(qry_fts[0], size=query_labels.shape[-2:], mode='bilinear')  # 1 * C * H * W
         label_num = torch.unique(query_labels)
         qry_fts_list = []

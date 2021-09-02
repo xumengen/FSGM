@@ -37,7 +37,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-In this repo, deep metric learning is applied to few shot segmentation. According to the information provided by the mask, the distance between feature vectors of the same category in the high-dimensional space is as small as possible, and the distance between feature vectors of different categories is close or far away.
+This project is code implementation of my final project report in KCL. In this repo, deep metric learning is applied to few shot segmentation. According to the information provided by the mask, the distance between feature vectors of the same category in the high-dimensional space is as small as possible, and the distance between feature vectors of different categories is close or far away.
 
 
 ### Built With
@@ -46,6 +46,30 @@ In this repo, deep metric learning is applied to few shot segmentation. Accordin
 * [pytorch-metric-learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
 * [segmentation_models](https://github.com/qubvel/segmentation_models)
 
+
+### Folder Structure
+* dataloaders/ 
+  * `coco.py`, `common.py`, `customized.py` are the class of dataset and dataloaders.
+  * `transforms.py` contains different transform functions.
+  
+* models/
+  * `fewshot.py` is the class definition of train model, including model initialization and forward function.
+  * `few_proto.py` is the class definition of test prototype model.
+  * `vgg.py` is the class definition of VGG feature extractor.
+
+* util/ 
+  * `metric.py` is the metric functions to evaluate models.
+  * `utils.py` contains some other functions used in the model training and testing.
+
+* experiments/ contains the training, testing and visualize scripts.
+
+* `config.py` is the configuration file to set the training and testing parameters.
+
+* `train_metric.py` is the main function to start training the model.
+
+* `test_proto.py` and `test_metric_knn.py` are the main functions to start testing model.
+
+* `visualization.py` is the script to visualize testing result.
 
 
 <!-- GETTING STARTED -->

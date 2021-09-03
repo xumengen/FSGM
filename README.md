@@ -58,7 +58,7 @@ This project is code implementation of my final project report in KCL. In this r
 
 * [pytorch](https://pytorch.org/)
 * [pytorch-metric-learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
-* [segmentation_models](https://github.com/qubvel/segmentation_models)
+* [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch)
 
 
 ### Folder Structure
@@ -96,7 +96,7 @@ To get a local copy up and running follow these simple steps.
 * Python 3.6+
 * PyTorch 1.9.0
 * pytorch-metric-learning
-* segmentation_models
+* segmentation_models_pytorch
 * torchvision 0.2.1+
 * pycocotools
 * sacred 0.7.5
@@ -180,4 +180,4 @@ Project Link: [https://github.com/xumengen/FSGM](https://github.com/xumengen/FSG
 
 * [PANet](https://github.com/xumengen/PANet)
 * [pytorch-metric-learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
-* [segmentation_models](https://github.com/qubvel/segmentation_models)
+* [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch)

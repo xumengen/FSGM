@@ -38,7 +38,7 @@ In this repo, deep metric learning is applied to few shot segmentation. Accordin
 * Python 3.6+
 * PyTorch 1.9.0
 * pytorch-metric-learning
-* segmentation_models
+* segmentation_models_pytorch
 * torchvision 0.2.1+
 * pycocotools
 * sacred 0.7.5
@@ -94,4 +94,4 @@ In this repo, deep metric learning is applied to few shot segmentation. Accordin
 * [PANet](https://github.com/xumengen/PANet)
 * [pytorch](https://pytorch.org/)
 * [pytorch-metric-learning](https://github.com/KevinMusgrave/pytorch-metric-learning)
-* [segmentation_models](https://github.com/qubvel/segmentation_models)
+* [segmentation_models_pytorch](https://github.com/qubvel/segmentation_models.pytorch)

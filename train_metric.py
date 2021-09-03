@@ -1,3 +1,12 @@
+# -*- encoding: utf-8 -*-
+'''
+@File    :   train_metric.py
+@Author  :   Mengen Xu
+@Version :   1.0
+@Contact :   mengen0120@gmail.com
+'''
+
+
 """Training Script"""
 import os
 import shutil

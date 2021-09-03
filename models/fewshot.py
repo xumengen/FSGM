@@ -1,3 +1,12 @@
+# -*- encoding: utf-8 -*-
+'''
+@File    :   fewshot.py
+@Author  :   Mengen Xu
+@Version :   1.0
+@Contact :   mengen0120@gmail.com
+'''
+
+
 """
 Fewshot Semantic Segmentation
 """

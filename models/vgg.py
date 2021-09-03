@@ -1,3 +1,4 @@
+# Refer to https://github.com/kaixin96/PANet
 """
 Encoder for few shot segmentation (VGG16)
 """
